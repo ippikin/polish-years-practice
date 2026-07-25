@@ -254,15 +254,35 @@ class PolishYearsPractice {
 
   setupEventListeners() {
     this.selectors.playBtn.addEventListener('click', () => {
-      this.playAudio(1.0);
-      this.selectors.userInput.focus();
+      if (this.isAnsweredState) {
+        this.newRound();
+      } else {
+        this.selectors.userInput.value = '';
+        this.selectors.checkBtn.textContent = 'Sprawdź (Check)';
+        this.selectors.feedbackEl.classList.add('hidden');
+        this.playAudio(1.0);
+        this.selectors.userInput.focus();
+      }
     });
     this.selectors.playSlowBtn.addEventListener('click', () => {
-      this.playAudio(0.55);
-      this.selectors.userInput.focus();
+      if (this.isAnsweredState) {
+        this.newRound();
+      } else {
+        this.selectors.userInput.value = '';
+        this.selectors.checkBtn.textContent = 'Sprawdź (Check)';
+        this.selectors.feedbackEl.classList.add('hidden');
+        this.playAudio(0.55);
+        this.selectors.userInput.focus();
+      }
     });
     
-    this.selectors.checkBtn.addEventListener('click', () => this.checkAnswer());
+    this.selectors.checkBtn.addEventListener('click', () => {
+      if (this.isAnsweredState) {
+        this.newRound();
+      } else {
+        this.checkAnswer();
+      }
+    });
     this.selectors.revealBtn.addEventListener('click', () => this.revealAnswer());
     this.selectors.skipBtn.addEventListener('click', () => this.newRound());
     

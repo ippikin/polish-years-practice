@@ -253,8 +253,14 @@ class PolishYearsPractice {
   }
 
   setupEventListeners() {
-    this.selectors.playBtn.addEventListener('click', () => this.playAudio(1.0));
-    this.selectors.playSlowBtn.addEventListener('click', () => this.playAudio(0.55));
+    this.selectors.playBtn.addEventListener('click', () => {
+      this.playAudio(1.0);
+      this.selectors.userInput.focus();
+    });
+    this.selectors.playSlowBtn.addEventListener('click', () => {
+      this.playAudio(0.55);
+      this.selectors.userInput.focus();
+    });
     
     this.selectors.checkBtn.addEventListener('click', () => this.checkAnswer());
     this.selectors.revealBtn.addEventListener('click', () => this.revealAnswer());
@@ -363,6 +369,10 @@ class PolishYearsPractice {
 
   playAudio(rate = 1.0) {
     if (!this.currentRound || !this.synth) return;
+    
+    if (this.selectors.userInput) {
+      this.selectors.userInput.focus();
+    }
     
     this.synth.cancel();
     

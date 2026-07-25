@@ -59,11 +59,11 @@ const HUNDREDS_CARDINAL = {
 };
 
 const HUNDREDS_ORDINALS = {
-  100: { loc: 'stnym', gen: 'stnego', acc: 'stny', inst: 'stnym' },
+  100: { loc: 'setnym', gen: 'setnego', acc: 'setny', inst: 'setnym' },
   200: { loc: 'dwusetnym', gen: 'dwusetnego', acc: 'dwusetny', inst: 'dwusetnym' },
   300: { loc: 'trzysetnym', gen: 'trzysetnego', acc: 'trzysetny', inst: 'trzysetnym' },
-  400: { loc: 'czterochsetnym', gen: 'czterochsetnego', acc: 'czterochsetny', inst: 'czterochsetnym' },
-  500: { loc: 'pięcisetnym', gen: 'pięcisetnego', acc: 'pięcisetny', inst: 'pięcisetnym' },
+  400: { loc: 'czterechsetnym', gen: 'czterechsetnego', acc: 'czterechsetny', inst: 'czterechsetnym' },
+  500: { loc: 'pięćsetnym', gen: 'pięćsetnego', acc: 'pięćsetny', inst: 'pięćsetnym' },
   600: { loc: 'sześćsetnym', gen: 'sześćsetnego', acc: 'sześćsetny', inst: 'sześćsetnym' },
   700: { loc: 'siedemsetnym', gen: 'siedemsetnego', acc: 'siedemsetny', inst: 'siedemsetnym' },
   800: { loc: 'osiemsetnym', gen: 'osiemsetnego', acc: 'osiemsetny', inst: 'osiemsetnym' },

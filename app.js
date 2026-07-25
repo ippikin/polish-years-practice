@@ -120,12 +120,13 @@ class PolishYearsPractice {
   constructor() {
     this.minYear = 1900;
     this.maxYear = 2099;
-    this.selectedPrep = 'all'; // 'all' or prep ID
+    this.selectedPrep = 'all';
     this.currentRound = null;
     this.speechRate = 1.0;
     this.synth = window.speechSynthesis;
     this.polishVoice = null;
     this.voices = [];
+    this.isAnsweredState = false;
     
     this.stats = {
       correct: 0,
@@ -264,6 +265,7 @@ class PolishYearsPractice {
         this.selectors.userInput.focus();
       }
     });
+
     this.selectors.playSlowBtn.addEventListener('click', () => {
       if (this.isAnsweredState) {
         this.newRound();
@@ -283,6 +285,7 @@ class PolishYearsPractice {
         this.checkAnswer();
       }
     });
+
     this.selectors.revealBtn.addEventListener('click', () => this.revealAnswer());
     this.selectors.skipBtn.addEventListener('click', () => this.newRound());
     
@@ -350,49 +353,67 @@ class PolishYearsPractice {
   }
 
   generateRandomRound() {
-    const year = Math.floor(Math.random() * (this.maxYear - this.minYear + 1)) + this.minYear;
-    let prepObj;
-    if (this.selectedPrep === 'all') {
-      prepObj = PREPOSITIONS[Math.floor(Math.random() * PREPOSITIONS.length)];
-    } else {
-      prepObj = PREPOSITIONS.find(p => p.id === this.selectedPrep) || PREPOSITIONS[0];
-    }
+    let nextRound;
+    let attempts = 0;
+    const totalCombinations = (this.maxYear - this.minYear + 1) * (this.selectedPrep === 'all' ? PREPOSITIONS.length : 1);
 
-    const words = yearToPolishWords(year, prepObj.case);
-    const fullText = `${prepObj.prefix}${words}${prepObj.suffix}`;
-    const displayForm = prepObj.suffix.trim() ? `${prepObj.prefix}${year}${prepObj.suffix}` : `${prepObj.prefix}${year}`;
+    do {
+      attempts++;
+      const year = Math.floor(Math.random() * (this.maxYear - this.minYear + 1)) + this.minYear;
+      let prepObj;
+      if (this.selectedPrep === 'all') {
+        prepObj = PREPOSITIONS[Math.floor(Math.random() * PREPOSITIONS.length)];
+      } else {
+        prepObj = PREPOSITIONS.find(p => p.id === this.selectedPrep) || PREPOSITIONS[0];
+      }
 
-    return {
-      year,
-      prep: prepObj,
-      words,
-      fullText,
-      displayForm
-    };
+      const words = yearToPolishWords(year, prepObj.case);
+      const fullText = `${prepObj.prefix}${words}${prepObj.suffix}`;
+      const displayForm = prepObj.suffix.trim() ? `${prepObj.prefix}${year}${prepObj.suffix}` : `${prepObj.prefix}${year}`;
+
+      nextRound = {
+        year,
+        prep: prepObj,
+        words,
+        fullText,
+        displayForm
+      };
+    } while (
+      this.currentRound &&
+      nextRound.fullText === this.currentRound.fullText &&
+      totalCombinations > 1 &&
+      attempts < 30
+    );
+
+    return nextRound;
   }
 
   newRound() {
     this.currentRound = this.generateRandomRound();
     this.isAnsweredState = false;
     
-    this.selectors.userInput.value = '';
+    // Re-enable inputs
     this.selectors.userInput.disabled = false;
     this.selectors.checkBtn.disabled = false;
+    this.selectors.revealBtn.disabled = false;
     this.selectors.checkBtn.textContent = 'Sprawdź (Check)';
     
-    this.selectors.feedbackEl.classList.add('hidden');
-    this.selectors.feedbackEl.classList.remove('correct', 'incorrect');
+    this.selectors.userInput.value = '';
+    this.selectors.feedbackEl.className = 'feedback hidden';
+    
+    const existingNext = document.getElementById('next-round-btn');
+    if (existingNext) existingNext.remove();
 
-    this.selectors.userInput.focus();
+    setTimeout(() => {
+      this.selectors.userInput.value = '';
+      this.selectors.userInput.focus();
+    }, 50);
+
     this.playAudio(1.0);
   }
 
   playAudio(rate = 1.0) {
     if (!this.currentRound || !this.synth) return;
-    
-    if (this.selectors.userInput) {
-      this.selectors.userInput.focus();
-    }
     
     this.synth.cancel();
     
@@ -439,11 +460,6 @@ class PolishYearsPractice {
     const fullTextNorm = this.normalizeInput(this.currentRound.fullText);
     const prepPrefixNorm = this.normalizeInput(this.currentRound.prep.prefix);
     
-    // Acceptable answer variants:
-    // 1) Exact year number ("1916")
-    // 2) Full display form ("w 1916 roku" or "w 1916")
-    // 3) Display form without preposition ("1916 roku")
-    // 4) Full written Polish text ("w tysiąc dziewięćset szesnastym roku")
     const isCorrect = (
       normalizedInput === yearStr ||
       normalizedInput === displayFormNorm ||
@@ -487,14 +503,45 @@ class PolishYearsPractice {
   }
 
   showFeedback(isCorrect, titleText) {
-    this.selectors.feedbackEl.classList.remove('hidden', 'correct', 'incorrect');
-    this.selectors.feedbackEl.classList.add(isCorrect ? 'correct' : 'incorrect');
-    
+    this.selectors.feedbackEl.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
     this.selectors.feedbackTitle.textContent = titleText;
     this.selectors.feedbackMessage.innerHTML = `Forma (Year Phrase): <strong>${this.currentRound.displayForm}</strong>`;
     this.selectors.feedbackSpelling.innerHTML = `Słownie (In words): <span class="polish-spelling-highlight">${this.currentRound.fullText}</span>`;
     
-    this.selectors.checkBtn.textContent = 'Następny (Next ↵)';
+    this.selectors.userInput.disabled = true;
+    this.selectors.checkBtn.disabled = true;
+    this.selectors.revealBtn.disabled = true;
+    
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'btn btn-primary next-round-btn';
+    nextBtn.id = 'next-round-btn';
+    nextBtn.innerHTML = 'Następny (Next) <span class="kbd">Enter</span>';
+    
+    const existingNext = document.getElementById('next-round-btn');
+    if (existingNext) existingNext.remove();
+    
+    this.selectors.feedbackEl.appendChild(nextBtn);
+    nextBtn.focus();
+    
+    nextBtn.addEventListener('click', () => {
+      nextBtn.remove();
+      setTimeout(() => {
+        this.newRound();
+      }, 0);
+    });
+    
+    const nextKeyListener = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        document.removeEventListener('keydown', nextKeyListener);
+        const btn = document.getElementById('next-round-btn');
+        if (btn) {
+          btn.click();
+        }
+      }
+    };
+    document.addEventListener('keydown', nextKeyListener);
   }
 
   addHistoryItem(isCorrect, userGuess) {

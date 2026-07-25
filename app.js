@@ -255,27 +255,13 @@ class PolishYearsPractice {
 
   setupEventListeners() {
     this.selectors.playBtn.addEventListener('click', () => {
-      if (this.isAnsweredState) {
-        this.newRound();
-      } else {
-        this.selectors.userInput.value = '';
-        this.selectors.checkBtn.textContent = 'Sprawdź (Check)';
-        this.selectors.feedbackEl.classList.add('hidden');
-        this.playAudio(1.0);
-        this.selectors.userInput.focus();
-      }
+      this.playAudio(1.0);
+      this.selectors.userInput.focus();
     });
 
     this.selectors.playSlowBtn.addEventListener('click', () => {
-      if (this.isAnsweredState) {
-        this.newRound();
-      } else {
-        this.selectors.userInput.value = '';
-        this.selectors.checkBtn.textContent = 'Sprawdź (Check)';
-        this.selectors.feedbackEl.classList.add('hidden');
-        this.playAudio(0.55);
-        this.selectors.userInput.focus();
-      }
+      this.playAudio(0.55);
+      this.selectors.userInput.focus();
     });
     
     this.selectors.checkBtn.addEventListener('click', () => {

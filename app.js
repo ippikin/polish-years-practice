@@ -508,40 +508,10 @@ class PolishYearsPractice {
     this.selectors.feedbackMessage.innerHTML = `Forma (Year Phrase): <strong>${this.currentRound.displayForm}</strong>`;
     this.selectors.feedbackSpelling.innerHTML = `Słownie (In words): <span class="polish-spelling-highlight">${this.currentRound.fullText}</span>`;
     
-    this.selectors.userInput.disabled = true;
-    this.selectors.checkBtn.disabled = true;
-    this.selectors.revealBtn.disabled = true;
-    
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'btn btn-primary next-round-btn';
-    nextBtn.id = 'next-round-btn';
-    nextBtn.innerHTML = 'Następny (Next) <span class="kbd">Enter</span>';
-    
-    const existingNext = document.getElementById('next-round-btn');
-    if (existingNext) existingNext.remove();
-    
-    this.selectors.feedbackEl.appendChild(nextBtn);
-    nextBtn.focus();
-    
-    nextBtn.addEventListener('click', () => {
-      nextBtn.remove();
-      setTimeout(() => {
-        this.newRound();
-      }, 0);
-    });
-    
-    const nextKeyListener = (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        e.stopPropagation();
-        document.removeEventListener('keydown', nextKeyListener);
-        const btn = document.getElementById('next-round-btn');
-        if (btn) {
-          btn.click();
-        }
-      }
-    };
-    document.addEventListener('keydown', nextKeyListener);
+    // Transform check button into Next button and keep it enabled
+    this.selectors.checkBtn.disabled = false;
+    this.selectors.checkBtn.textContent = 'Następny (Next ↵)';
+    this.selectors.checkBtn.focus();
   }
 
   addHistoryItem(isCorrect, userGuess) {
